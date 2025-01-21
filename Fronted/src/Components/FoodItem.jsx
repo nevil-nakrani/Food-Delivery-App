@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { assets } from "../assets/frontend_assets/assets";
+import { assets } from "../assets/assets";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart } from "../features/foodSlice";
 

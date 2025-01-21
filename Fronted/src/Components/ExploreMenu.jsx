@@ -1,4 +1,4 @@
-import { menu_list } from "../assets/frontend_assets/assets";
+import { menu_list } from "../assets/assets";
 import { motion } from "framer-motion";
 
 const ExploreMenu = ({ category, setCategory }) => {

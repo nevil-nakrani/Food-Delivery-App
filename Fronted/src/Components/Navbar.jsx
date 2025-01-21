@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { assets } from "../assets/frontend_assets/assets";
+import { assets } from "../assets/assets";
 import { useSelector } from "react-redux";
 import { selectCartItemCount } from "../features/foodSlice";
 
-const Navbar = () => {
+const Navbar = ({ setShowLogin }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const basketCount = useSelector(selectCartItemCount);
@@ -21,6 +21,12 @@ const Navbar = () => {
       y: -20,
       transition: { duration: 0.3, ease: "easeInOut" },
     },
+  };
+
+  const basketCountAnimation = {
+    scale: [1, 1.1, 1],
+    opacity: [0.8, 1, 0.8],
+    transition: { duration: 1, repeat: Infinity },
   };
 
   return (
@@ -72,21 +78,20 @@ const Navbar = () => {
       {/* Right Section */}
       <div className="hidden lg:flex items-center gap-6">
         <img src={assets.search_icon} alt="Search" />
-        <div className="relative">
+        <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
           <img className="w-7 h-7" src={assets.basket_icon} alt="Basket" />
           {basketCount > 0 && (
             <motion.div
               className="absolute top-[-5px] right-[-5px] min-w-[18px] min-h-[18px] flex items-center justify-center bg-orange-600 text-white text-sm rounded-full"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 0.5, repeat: Infinity }}
+              animate={basketCountAnimation}
             >
               {basketCount}
             </motion.div>
           )}
         </div>
         <button
-          className="bg-transparent text-base border py-2 px-5 rounded-full hover:bg-orange-500 hover:text-white transition-all duration-300"
-          onClick={() => navigate("/login")}
+          className="bg-transparent focus:outline focus:ring-1 focus:border-none border-gray-300 focus:ring-orange-300 focus:bg-orange-400 focus:text-white text-base border py-2 px-5 rounded-full hover:bg-orange-500 hover:text-white transition-all duration-300"
+          onClick={() => setShowLogin(true)}
         >
           Sign In
         </button>
@@ -101,8 +106,18 @@ const Navbar = () => {
           exit="closed"
           variants={menuVariants}
         >
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `py-2 duration-200 ${
+                isActive ? "text-orange-400 underline" : "text-gray-700"
+              } hover:text-orange-500`
+            }
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Home
+          </NavLink>
           {[
-            "Home",
             "Menu",
             "Mobile App",
             "Contact Us",
