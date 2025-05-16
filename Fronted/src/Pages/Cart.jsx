@@ -3,19 +3,59 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   addToCart,
   decreaseFromtheCart,
+  getFoodList,
   removeFromCart,
   subTotal,
 } from "../features/foodSlice";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Cart = () => {
-  const { food_list, cartItems } = useSelector((state) => state.food);
+  const { food_list, cartItems, isLoading } = useSelector(
+    (state) => state.food
+  );
   const dispatch = useDispatch();
-  const subtotal = useSelector(subTotal);
   const navigate = useNavigate();
 
-  const deliveryFee = subtotal > 0 ? 5 : 0; // Add delivery fee if cart has items
+  console.log(food_list, isLoading);
+
+  // Read cartItems from localStorage (assumes JSON string format)
+  const storedCart = JSON.parse(localStorage.getItem("cartItems")) || {};
+
+  const subtotal = food_list?.reduce((acc, item) => {
+    const quantity = storedCart[item._id] || 0;
+    return acc + item.price * quantity;
+  }, 0);
+
+  const deliveryFee = subtotal > 0 ? 5 : 0;
   const total = subtotal + deliveryFee;
+
+  useEffect(() => {
+    if (!food_list || food_list.length === 0) {
+      dispatch(getFoodList());
+    }
+  }, [dispatch, food_list]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <svg
+          className="animate-spin h-10 w-10 text-gray-800"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 4v1m0 14v1m8-10h-1m-14 0H4m16.364 6.364l-.707-.707M7.636 7.636l-.707-.707M17.657 6.343l-.707.707M6.343 17.657l-.707.707"
+          />
+        </svg>
+      </div>
+    );
+  }
 
   // Animation Variants
   const itemVariants = {
@@ -44,7 +84,7 @@ const Cart = () => {
         </div>
 
         <AnimatePresence>
-          {food_list.map((item) => {
+          {food_list?.map((item) => {
             if (cartItems[item._id] > 0) {
               return (
                 <motion.div

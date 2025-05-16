@@ -1,7 +1,21 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { food_list } from "../assets/assets";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axiosClient from "../../utils/axiosClient";
 
-const initialState = { food_list, cartItems: {} };
+const initialState = {
+  food_list: null,
+  isLoading: false,
+  cartItems: JSON.parse(localStorage.getItem("cartItems")) || {},
+};
+
+export const getFoodList = createAsyncThunk("/food", async () => {
+  try {
+    const { data } = await axiosClient.get("/food");
+    return data;
+  } catch (e) {
+    console.log(e);
+    Promise.reject(e);
+  }
+});
 
 const foodSlice = createSlice({
   name: "food",
@@ -36,7 +50,22 @@ const foodSlice = createSlice({
       state.cartItems = { ...state.cartItems, ...action.payload };
     },
   },
-  extraReducers: (builder) => {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getFoodList.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.food_list = action.payload?.success
+          ? action.payload?.food_list
+          : null;
+      })
+      .addCase(getFoodList.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getFoodList.rejected, (state) => {
+        state.isLoading = false;
+        state.food_list = null;
+      });
+  },
 });
 
 export const {

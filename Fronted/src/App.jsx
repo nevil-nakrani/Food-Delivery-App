@@ -4,14 +4,32 @@ import Home from "./Pages/Home";
 import Contact from "./Pages/Contact";
 import Cart from "./Pages/Cart";
 import PlaceOrder from "./Pages/PlaceOrder";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Footer from "./Components/Footer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Login from "./Pages/Login";
+import { fetchProfile } from "./features/userSlice";
+import MyOrders from "./Pages/MyOrders";
+import MobileApp from "./Pages/MobileApp";
 
 function App() {
-  const { user } = useSelector((state) => state.user);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const [showLogin, setShowLogin] = useState(false);
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchProfile());
+  }, []);
+
+  console.log(isAuthenticated);
+  
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setShowLogin(false);
+    }
+  }, [isAuthenticated]);
+
   return (
     <>
       {showLogin ? <Login setShowLogin={setShowLogin} /> : <></>}
@@ -22,8 +40,10 @@ function App() {
           <Route path="/contact-us" element={<Contact />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
+          <Route path="/myorders" element={<MyOrders />} />
+          <Route path="/mobile-app" element={<MobileApp />} />
         </Routes>
-      <Footer />
+        <Footer />
       </div>
     </>
   );

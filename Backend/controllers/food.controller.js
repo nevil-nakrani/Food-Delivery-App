@@ -26,7 +26,7 @@ export const addFood = async (req, res) => {
     });
 
     await food.save();
-    return res.status(201).json({ food });
+    return res.status(201).json({ food, success: true });
   } catch (error) {
     res.status(501).json({ message: "Food Add server error" });
     console.log(error);
@@ -36,7 +36,7 @@ export const addFood = async (req, res) => {
 export const listFood = async (req, res) => {
   try {
     const food_list = await Food.find();
-    res.status(200).json({ food_list });
+    res.status(200).json({ food_list, success: true });
   } catch (error) {
     res.status(500).json({ message: "Food not fetching from the server" });
   }

@@ -1,9 +1,58 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import { motion } from "framer-motion";
+import axiosClient from "../../utils/axiosClient";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { signin, signup } from "../features/userSlice";
+import { KEY_ACCESS_TOKEN, setItem } from "../../utils/localStorageManager";
 
 const Login = ({ setShowLogin }) => {
   const [currState, setCurrstate] = useState("Sign Up");
+  const { user } = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
+  const [data, setData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const onChangeHandler = (e) => {
+    const { name, value } = e.target;
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (currState === "Sign Up") {
+      // Handle Sign Up logic here
+      const result = await dispatch(signup(data));
+      if (result.payload?.success) {
+        toast.success("Account Created Successfully!");
+        setItem(KEY_ACCESS_TOKEN, result.payload?.token);
+        setShowLogin(false);
+        console.log("Sign Up Data:", result.payload);
+      } else {  
+        toast.error("Please try again later.");
+      }
+    } else {
+      const result = await dispatch(signin(data));
+      if (result.payload?.success) {
+        toast.success("Login Successfully!");
+        setItem(KEY_ACCESS_TOKEN, result.payload?.token);
+        setShowLogin(false);
+        console.log("Sign In Data:", result.payload);
+      } else {
+        toast.error("Invalid Credentials");
+      }
+      // Handle Sign In logic here
+    }
+  };
 
   return (
     <motion.div
@@ -36,6 +85,9 @@ const Login = ({ setShowLogin }) => {
           {currState === "Sign Up" && (
             <input
               type="text"
+              onChange={onChangeHandler}
+              value={data.name}
+              name="name"
               placeholder="Enter Your Name"
               required
               className="w-full p-3 mb-4 border border-gray-300 rounded-md"
@@ -45,11 +97,17 @@ const Login = ({ setShowLogin }) => {
             type="email"
             placeholder="Enter Your Email"
             required
+            onChange={onChangeHandler}
+            value={data.email}
+            name="email"
             className="w-full p-3 mb-4 border border-gray-300 rounded-md"
           />
           <input
             type="password"
             placeholder="Enter Password"
+            onChange={onChangeHandler}
+            value={data.password}
+            name="password"
             required
             className="w-full p-3 mb-4 border border-gray-300 rounded-md"
           />
@@ -57,6 +115,7 @@ const Login = ({ setShowLogin }) => {
           {/* Submit Button */}
           <button
             type="submit"
+            onClick={handleSubmit}
             className="w-full p-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300"
           >
             {currState === "Sign Up" ? "Create Account" : "Login"}

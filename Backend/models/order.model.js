@@ -7,19 +7,13 @@ const orderSchema = new Schema(
       ref: "User",
       required: true,
     },
-    restaurant: {
-      type: Schema.Types.ObjectId,
-      ref: "Restaurant",
-      required: true,
-    },
-    deliveryPartner: {
-      type: Schema.Types.ObjectId,
-      ref: "DeliveryPartner",
-      default: null, // Assigned later when a partner accepts the order
-    },
     items: [
       {
         item: {
+          type: String,
+          required: true,
+        },
+        name: {
           type: String,
           required: true,
         },
@@ -40,19 +34,19 @@ const orderSchema = new Schema(
     },
     status: {
       type: String,
-      enum: [
-        "Pending",
-        "Accepted",
-        "Preparing",
-        "Out for Delivery",
-        "Delivered",
-        "Cancelled",
-      ],
-      default: "Pending",
+      enum: ["Food Processing", "Out for Delivery", "Delivered"],
+      default: "Food Processing",
     },
     address: {
-      type: String,
-      required: true,
+      firstName: { type: String, required: true },
+      lastName: { type: String, required: true },
+      email: { type: String, required: true },
+      street: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      zipCode: { type: String, required: true },
+      country: { type: String, required: true },
+      phone: { type: String, required: true },
     },
     orderedAt: {
       type: Date,
@@ -60,11 +54,6 @@ const orderSchema = new Schema(
     },
     deliveredAt: {
       type: Date,
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["Pending", "Completed", "Failed"],
-      default: "Pending",
     },
   },
   { timestamps: true }
