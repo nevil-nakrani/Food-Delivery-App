@@ -58,7 +58,6 @@ const PlaceOrder = () => {
       order_id: order.id,
       receipt: order.receipt,
       handler: async (response) => {
-        console.log(response);
         try {
           const { data } = await axiosClient.post(
             "/order/place",
@@ -70,10 +69,11 @@ const PlaceOrder = () => {
             }
           );
           if (data.success) {
-            console.log(data);
-            toast.success(data.message);
-            navigate("/myorders");
             removeItem("cartItems");
+            navigate("/myorders");
+            toast.success(data.message);
+            dispatch(subTotal({}));
+            dispatch(clearCart());
             setData({
               firstName: "",
               lastName: "",
@@ -85,8 +85,6 @@ const PlaceOrder = () => {
               country: "",
               phone: "",
             });
-            dispatch(subTotal({}));
-            dispatch(clearCart());
           }
         } catch (e) {
           console.log(e);

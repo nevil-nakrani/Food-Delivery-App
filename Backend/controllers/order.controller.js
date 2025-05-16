@@ -1,10 +1,10 @@
 import Order from "../models/order.model.js";
 import User from "../models/user.model.js";
 import { instance } from "../config/razorpay.js";
+import { sendEmail } from "../Services/email.service.js";
 
 export const placeOrder = async (req, res) => {
   try {
-    console.log(req.body);
     
     const { items, totalPrice, address, razorpay_order_id } = req.body;
     console.log();
@@ -27,6 +27,10 @@ export const placeOrder = async (req, res) => {
       await User.findByIdAndUpdate(req.user._id, {
         $push: { orders: order._id },
       });
+
+      // Send email to user
+      sendEmail(req.user.email, items, totalPrice, address);
+
       return res.status(201).json({
         message: "Order placed successfully",
         success: true,
