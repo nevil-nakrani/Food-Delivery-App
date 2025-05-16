@@ -1,15 +1,20 @@
 import { useDispatch, useSelector } from "react-redux";
-import { subTotal } from "../features/foodSlice";
+import { clearCart, subTotal } from "../features/foodSlice";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import axiosClient from "../../utils/axiosClient";
 import { toast } from "react-toastify";
+import {
+  getItem,
+  KEY_ACCESS_TOKEN,
+  removeItem,
+} from "../../utils/localStorageManager";
 
 const PlaceOrder = () => {
   const { user } = useSelector((state) => state.user);
+
   const { food_list, cartItems } = useSelector((state) => state.food);
-  // Read cartItems from localStorage (assumes JSON string format)
   const storedCart = JSON.parse(localStorage.getItem("cartItems")) || {};
 
   const subtotal = food_list?.reduce((acc, item) => {
@@ -20,7 +25,7 @@ const PlaceOrder = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const deliveryFee = subtotal > 0 ? 5 : 0; // Add delivery fee if cart has items
+  const deliveryFee = subtotal > 0 ? 5 : 0;
   const total = subtotal + deliveryFee;
 
   const [data, setData] = useState({
@@ -41,6 +46,56 @@ const PlaceOrder = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const initPay = (order, orderData) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Order Payment",
+      description: "Food Order Payment",
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+        try {
+          const { data } = await axiosClient.post(
+            "/order/place",
+            { ...response, ...orderData },
+            {
+              headers: {
+                Authorization: `Bearer ${getItem(KEY_ACCESS_TOKEN)}`,
+              },
+            }
+          );
+          if (data.success) {
+            console.log(data);
+            toast.success(data.message);
+            navigate("/myorders");
+            removeItem("cartItems");
+            setData({
+              firstName: "",
+              lastName: "",
+              email: "",
+              street: "",
+              city: "",
+              state: "",
+              zipCode: "",
+              country: "",
+              phone: "",
+            });
+            dispatch(subTotal({}));
+            dispatch(clearCart());
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
   const handleSubmit = async (e) => {
@@ -65,33 +120,26 @@ const PlaceOrder = () => {
       totalPrice: total,
     };
     try {
-      let { data } = await axiosClient.post("/order/place", orderData, {
+      const { data } = await axiosClient.post("/payment/create", orderData, {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer  ${getItem(KEY_ACCESS_TOKEN)}`,
         },
       });
+
       if (data?.success) {
-        navigate("/myorders");
-        toast.success("Order Placed Successfully!");
-        localStorage.removeItem("cartItems");
-        setData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          street: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          country: "",
-          phone: "",
-        });
-        dispatch(subTotal({}));
+        console.log(data);
+        initPay(data?.order, orderData);
       } else {
-        toast.error(data?.message || "Failed to place order. Please try again.");
+        toast.error(
+          data?.message || "Failed to place order. Please try again."
+        );
       }
     } catch (error) {
       console.error("Error placing order:", error);
-      toast.error(error.response?.data?.message || "Failed to place order. Please try again.");
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to place order. Please try again."
+      );
       return;
     }
   };
@@ -112,6 +160,7 @@ const PlaceOrder = () => {
             value={data.firstName}
             onChange={onChangeHandler}
             placeholder="First Name"
+            required
             className="p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
           />
           <input
@@ -120,6 +169,7 @@ const PlaceOrder = () => {
             name="lastName"
             value={data.lastName}
             onChange={onChangeHandler}
+            required
             className="p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
           />
         </div>
@@ -128,6 +178,7 @@ const PlaceOrder = () => {
           name="email"
           value={data.email}
           onChange={onChangeHandler}
+          required
           placeholder="Email"
           className="w-full p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
         />
@@ -137,6 +188,7 @@ const PlaceOrder = () => {
           name="street"
           value={data.street}
           onChange={onChangeHandler}
+          required
           className="w-full p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -146,6 +198,7 @@ const PlaceOrder = () => {
             name="city"
             value={data.city}
             onChange={onChangeHandler}
+            required
             className="p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
           />
           <input
@@ -153,6 +206,7 @@ const PlaceOrder = () => {
             name="state"
             value={data.state}
             onChange={onChangeHandler}
+            required
             placeholder="State"
             className="p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
           />
@@ -163,6 +217,7 @@ const PlaceOrder = () => {
             name="zipCode"
             value={data.zipCode}
             onChange={onChangeHandler}
+            required
             placeholder="Zip Code"
             className="p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
           />
@@ -172,6 +227,7 @@ const PlaceOrder = () => {
             name="country"
             value={data.country}
             onChange={onChangeHandler}
+            required
             className="p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
           />
         </div>
@@ -181,6 +237,7 @@ const PlaceOrder = () => {
           name="phone"
           value={data.phone}
           onChange={onChangeHandler}
+          required
           className="w-full p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-orange-300"
         />
       </div>
@@ -191,17 +248,17 @@ const PlaceOrder = () => {
         <div className="text-gray-700 space-y-3">
           <div className="flex justify-between">
             <p className="font-medium">Subtotal</p>
-            <p>${subtotal?.toFixed(2)}</p>
+            <p>₹ {subtotal?.toFixed(2)}</p>
           </div>
           <hr />
           <div className="flex justify-between">
             <p className="font-medium">Delivery Fee</p>
-            <p>${deliveryFee?.toFixed(2)}</p>
+            <p>₹ {deliveryFee?.toFixed(2)}</p>
           </div>
           <hr />
           <div className="flex justify-between font-bold text-gray-900">
             <p>Total</p>
-            <p>${total?.toFixed(2)}</p>
+            <p>₹ {total?.toFixed(2)}</p>
           </div>
         </div>
         <motion.button

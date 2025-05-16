@@ -68,7 +68,7 @@ const List = () => {
           />
           <p className="text-gray-800 font-medium">{food.name}</p>
           <p className="text-gray-600 capitalize">{food.category}</p>
-          <p className="text-gray-800 font-medium">${food.price}</p>
+          <p className="text-gray-800 font-medium">₹ {food.price}</p>
           <button
             onClick={() => handleDelete(food._id)}
             className="text-red-500 font-medium hover:text-red-600 hover:underline transition-colors duration-150"

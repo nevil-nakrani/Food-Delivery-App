@@ -74,7 +74,7 @@ const Cart = () => {
     >
       {/* Cart Items Section */}
       <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-        <div className="hidden sm:grid grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] text-base sm:text-lg font-semibold py-3 px-4 sm:px-6 bg-gray-100 text-gray-700 border-b border-gray-300">
+        <div className="hidden sm:grid grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] text-base sm:text-lg font-semibold py-3 px-4 sm:px-6 bg-orange-50 text-gray-700 border-b border-gray-300">
           <p>Items</p>
           <p>Title</p>
           <p>Price</p>
@@ -93,7 +93,7 @@ const Cart = () => {
                   initial="hidden"
                   animate="visible"
                   exit="exit"
-                  className="flex flex-wrap sm:grid sm:grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] gap-4 items-center text-gray-800 py-4 px-4 sm:px-6 border-b border-gray-200 hover:shadow-md transition-shadow duration-300"
+                  className="flex flex-wrap sm:grid sm:grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] gap-4 items-center text-gray-800 py-4 px-4 sm:px-6 border-b border-gray-200 hover:shadow-md hover:shadow-orange-100 transition-shadow duration-300"
                 >
                   <img
                     src={item.image}
@@ -101,24 +101,24 @@ const Cart = () => {
                     className="w-16 h-16 object-cover rounded-lg"
                   />
                   <p className="font-medium">{item.name}</p>
-                  <p className="text-gray-600">${item.price}</p>
+                  <p className="text-gray-600">₹ {item.price}</p>
                   <div className="flex items-center">
                     <button
-                      className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                      className="px-2 py-1 bg-orange-50 text-gray-700 rounded hover:bg-orange-100"
                       onClick={() => dispatch(decreaseFromtheCart(item._id))}
                     >
                       −
                     </button>
                     <p className="mx-3">{cartItems[item._id]}</p>
                     <button
-                      className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                      className="px-2 py-1 bg-orange-50 text-gray-700 rounded hover:bg-orange-100"
                       onClick={() => dispatch(addToCart(item._id))}
                     >
                       +
                     </button>
                   </div>
                   <p className="text-gray-800 font-medium">
-                    ${cartItems[item._id] * item.price}
+                    ₹ {cartItems[item._id] * item.price}
                   </p>
                   <button
                     className="text-red-500 hover:text-red-600 font-bold text-lg cursor-pointer"
@@ -140,7 +140,7 @@ const Cart = () => {
             transition={{ duration: 0.3 }}
             className="text-center py-10 text-gray-500 text-lg"
           >
-            Your cart is empty 😞
+            Your cart is currently empty
           </motion.div>
         )}
       </div>
@@ -184,24 +184,28 @@ const Cart = () => {
           <div className="text-gray-700 space-y-3">
             <div className="flex justify-between">
               <p className="font-medium">Subtotal</p>
-              <p>${subtotal}</p>
+              <p>₹ {subtotal}</p>
             </div>
             <hr />
             <div className="flex justify-between">
               <p className="font-medium">Delivery Fee</p>
-              <p>${deliveryFee.toFixed(2)}</p>
+              <p>₹ {deliveryFee.toFixed(2)}</p>
             </div>
             <hr />
             <div className="flex justify-between font-bold text-gray-900">
               <p>Total</p>
-              <p>${total.toFixed(2)}</p>
+              <p>₹ {total.toFixed(2)}</p>
             </div>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="w-full mt-6 py-2 bg-orange-600 text-white rounded-md text-sm hover:bg-orange-700 transition"
-            onClick={() => navigate("/order")}
+            onClick={() => {
+              if (total > 0) {
+                navigate("/order");
+              }
+            }}
           >
             PROCEED TO CHECKOUT
           </motion.button>

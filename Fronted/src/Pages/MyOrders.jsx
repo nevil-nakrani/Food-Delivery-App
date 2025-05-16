@@ -68,7 +68,7 @@ const MyOrders = () => {
                   Total Items: <b>{order.items.length}</b>
                 </div>
                 <div>
-                  Total Price: <b>${order.totalPrice?.toFixed(2)}</b>
+                  Total Price: <b>₹ {order.totalPrice?.toFixed(2)}</b>
                 </div>
                 <div className="col-span-2 flex items-center gap-2">
                   <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>

@@ -119,7 +119,7 @@ export default function AddFood() {
             <input
               type="number"
               name="price"
-              placeholder="$20"
+              placeholder="₹ 20"
               className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
               onChange={(e) => setPrice(e.target.value)}
               value={price}

@@ -109,7 +109,7 @@ const Order = () => {
 
                 <div>
                   <p className="font-semibold text-gray-900">Total</p>
-                  <p>${order.totalPrice.toFixed(2)}</p>
+                  <p>₹ {order.totalPrice.toFixed(2)}</p>
                 </div>
 
                 <div>

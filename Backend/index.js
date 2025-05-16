@@ -7,6 +7,7 @@ import userRouter from "./routes/user.route.js";
 import foodRouter from "./routes/food.route.js";
 import orderRouter from "./routes/order.route.js";
 import connetDb from "./database/connectDb.js";
+import paymentRouter from "./routes/payment.route.js";
 import connectCloudinary from "./config/cloudinary.js";
 import { authUser } from "./middlewares/auth.middleware.js";
 
@@ -24,6 +25,7 @@ app.use(
 app.use("/user", userRouter);
 app.use("/food", foodRouter);
 app.use("/order", authUser, orderRouter);
+app.use("/payment", authUser, paymentRouter);
 
 app.listen(PORT, () => {
   connectCloudinary();

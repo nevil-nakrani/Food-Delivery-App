@@ -93,7 +93,7 @@ const FoodItem = ({ id, name, description, price, image }) => {
           className="text-lg font-semibold text-orange-500"
           whileHover={{ scale: 1.1, color: "#f97316" }}
         >
-          ${price}
+          ₹ {price}
         </motion.p>
       </div>
     </motion.div>
